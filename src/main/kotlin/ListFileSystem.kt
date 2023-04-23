@@ -7,7 +7,7 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.extension
 
-class ListFileSystem(val root: Path, val result: MutableList<ComparsionResult> = mutableListOf<ComparsionResult>()) {
+class ListFileSystem(val root: Path, val result: MutableSet<ComparsionResult> = mutableSetOf()) {
     companion object {
         val log = LoggerFactory.getLogger(ListFileSystem.javaClass)
     }
@@ -27,7 +27,7 @@ class ListFileSystem(val root: Path, val result: MutableList<ComparsionResult> =
                     return FileVisitResult.CONTINUE;
                 else {
                     if (path1.extension in setOf("jar", "zip")) {
-                        ListZipArchive(path1, path1.toFile().inputStream(), result).proceed()
+                        ListZipArchive(root, path1, path1.toFile().inputStream(), result).proceed()
                     } else {
                         result.add(ComparsionResult(relativize.toString()))
                     }
