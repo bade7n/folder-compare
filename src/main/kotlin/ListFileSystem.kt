@@ -13,7 +13,7 @@ class ListFileSystem(val root: Path, val result: MutableSet<ComparsionResult> = 
     }
 
 
-    fun proceed() {
+    fun proceed(): MutableSet<ComparsionResult> {
         Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
             @Throws(IOException::class)
             override fun visitFile(
@@ -35,5 +35,6 @@ class ListFileSystem(val root: Path, val result: MutableSet<ComparsionResult> = 
                 return FileVisitResult.CONTINUE
             }
         })
+        return result;
     }
 }

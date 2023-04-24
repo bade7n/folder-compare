@@ -5,7 +5,7 @@ import java.util.zip.ZipInputStream
 import kotlin.io.path.extension
 
 class ListZipArchive(val root: Path, val path: Path, val inputStream: InputStream, val result: MutableSet<ComparsionResult> = mutableSetOf()) {
-    fun proceed() {
+    fun proceed(): MutableSet<ComparsionResult> {
         ZipInputStream(inputStream).use { zit ->
 
             generateSequence { zit.nextEntry }.forEach { zipEntry ->
@@ -20,11 +20,13 @@ class ListZipArchive(val root: Path, val path: Path, val inputStream: InputStrea
                         }
                         ListZipArchive(root, path1, entryIs, result).proceed()
                     } else {
-                        result.add(ComparsionResult(root.relativize(path1).toString()))
+                        if (!zipEntry.isDirectory)
+                            result.add(ComparsionResult(root.relativize(path1).toString()))
                     }
                 } catch (e: Throwable) {
                 }
             }
         }
+        return result;
     }
 }
