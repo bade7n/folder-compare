@@ -20,6 +20,8 @@ fun main(args: Array<String>) {
     println("Takes ${sw.elapsed()}");
     val comparisonResult = compareResults(result1, result2)
     println("Takes ${sw.elapsed()}");
+    saveInto(comparisonResult.first, "result1.txt")
+    saveInto(comparisonResult.second, "result2.txt")
     println("Program arguments: ${comparisonResult.first.size} ${comparisonResult.second.size}")
 }
 
