@@ -8,12 +8,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ComparePaths {
-    private static String elasticVersion = "128741";
+    private static String elasticVersion = "128760";
     private static String masterVersion = "128634";
     private static String version = "2023.03-" + elasticVersion;
 
     private static List<Pair<Pattern, String[]>> rulesToMatchPrefixes = List.of(
-            Pair.of(Pattern.compile("^(.*)" + elasticVersion + "(.*)$"), new String[] {"$1" + masterVersion + "$2"}),
+//            Pair.of(Pattern.compile("^(.*)" + elasticVersion + "(.*)$"), new String[] {"$1" + masterVersion + "$2"}),
 
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-]+)/agent/([\\w\\-\\.]+).(zip|jar)/(.+)$"),
                 new String[] {
@@ -25,6 +25,11 @@ public class ComparePaths {
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-]+)/agent/([\\w\\-\\.]+).(zip|jar)/([\\.\\-\\w\\/]+)\\.jar/(.+)$"),
                 new String[] {
                         "^webapps/ROOT/WEB-INF/plugins/$1/agent/$2.(zip|jar)/([\\.\\-\\w\\/]+)\\.jar/$5$"
+            }),
+
+            Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/lib/([\\w\\-\\.]+)\\.jar/(.+)$"),
+                new String[] {
+                        "^webapps/ROOT/WEB-INF/lib/(\\w\\-\\.)\\.jar/$2$"
             }),
 
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/server/([\\w\\-\\.]+)-"+version+"(\\-classes)?\\.jar/(.+)$"),
@@ -58,6 +63,12 @@ public class ComparePaths {
     @Nullable
     public ComparsionResult compare(@NotNull ComparsionResult r) {
         Boolean stop = r.getPath().contains("jetbrains/buildServer/nodejs/context/BuildContext.class");
+
+        String p = r.getPath().replace(elasticVersion, masterVersion);
+        ComparsionResult cr = new ComparsionResult(p);
+        if (result2.contains(cr))
+            return cr;
+
 
         for (Pair<Pattern, String[]> e: rulesToMatchPrefixes) {
             Matcher matcher = e.getKey().matcher(r.getPath());
