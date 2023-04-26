@@ -42,3 +42,4 @@ build/
 *.cache
 TeamCity-*
 result*
+Dist_Parts*

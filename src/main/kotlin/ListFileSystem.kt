@@ -7,13 +7,12 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.extension
 
-class ListFileSystem(val root: Path, val result: MutableSet<ComparsionResult> = mutableSetOf()) {
+class ListFileSystem(val root: Path, val result: MutableList<String> = mutableListOf()) {
     companion object {
         val log = LoggerFactory.getLogger(ListFileSystem.javaClass)
     }
 
-
-    fun proceed(): MutableSet<ComparsionResult> {
+    fun proceed(): MutableList<String> {
         Files.walkFileTree(root, object : SimpleFileVisitor<Path>() {
             @Throws(IOException::class)
             override fun visitFile(
@@ -29,7 +28,7 @@ class ListFileSystem(val root: Path, val result: MutableSet<ComparsionResult> = 
                     if (path1.extension in setOf("jar", "zip")) {
                         ListZipArchive(root, path1, path1.toFile().inputStream(), result).proceed()
                     } else {
-                        result.add(ComparsionResult(relativize.toString()))
+                        result.add(relativize.toString())
                     }
                 }
                 return FileVisitResult.CONTINUE

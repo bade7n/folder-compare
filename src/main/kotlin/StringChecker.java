@@ -10,18 +10,17 @@ public class StringChecker {
         this.pat = pat;
     }
 
-    public ComparsionResult match(Set<ComparsionResult> result2) {
+    public String match(Set<String> result2) {
         if (isPattern) {
             Pattern p1 = Pattern.compile(pat);
 
-            for (ComparsionResult c1 : result2) {
-                if (p1.matcher(c1.getPath()).find())
+            for (String c1 : result2) {
+                if (p1.matcher(c1).find())
                     return c1;
             }
         } else {
-            ComparsionResult element = new ComparsionResult(pat);
-            if (result2.contains(element))
-                return element;
+            if (result2.contains(pat))
+                return pat;
         }
         return null;
     }
