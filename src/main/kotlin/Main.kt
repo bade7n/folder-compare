@@ -29,9 +29,12 @@ fun main(args: Array<String>) {
     t2.join();
     t1.join()
     println("Takes ${sw.elapsed()}");
-    val comparisonResult = compareResultsByRoot(result1, result2)
+    val comparisonResult = compareResultsByRoot(result1, result2, setOf(elastic, master))
     println("Takes ${sw.elapsed()}");
     saveInto(comparisonResult, "result_comparison.txt")
+    val res2Missing = comparisonResult.findMissingInResult2();
+    val res1Missing = comparisonResult.findMissingInResult1();
+    val diff = comparisonResult.findByPrefix("webapps/ROOT/WEB-INF/plugins/java-dowser")
     println("Program arguments: ${comparisonResult}")
 }
 
@@ -40,6 +43,7 @@ fun RootStringExtraInfo.format(root: String) =
         Origin: $root
         In res1: ${this.origins1.joinToString()}
         In res2: ${this.origins2.joinToString()}
+        
     """.trimIndent()
 
 private fun fetchResults(path: Path): Pair<List<String>, String> {
@@ -109,7 +113,7 @@ fun compareResults(elastic: String, master: String, result1: MutableSet<String>,
     return Pair(result1, result2);
 }
 
-fun compareResultsByRoot(result1: List<String>, result2: List<String>) = ComparePathsByRootForm(result1, result2).resultMap
+fun compareResultsByRoot(result1: List<String>, result2: List<String>, ignoredTokens: Set<String>) = ComparePathsByRootForm(result1, result2, ignoredTokens).resultMap
 
 fun findMatchedInSet(result2: MutableSet<String>, r: String, comparison: ComparePaths): String? {
     var result = result2.contains(r)

@@ -1,9 +1,8 @@
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 class Test1 {
-    @Test
     fun test1() {
         var res1 = """
             java-ide-plugins/eclipse-plugin-dependencies/coverage.zip/coverage/server/coverage-report-1.0.jar/META-INF/MANIFEST.MF
@@ -80,11 +79,33 @@ class Test1 {
             java-ide-plugins/eclipse-plugin-dependencies/coverage.zip/coverage/server/coverage-report-2.0.jar/jetbrains/coverage/report/impl/html/fs/ZipFileSystem.class
         """.trimIndent()
         val result2 = res2.split("\n")
-        val res = ComparePathsByRootForm(result1, result2 ).resultMap
+        val res = ComparePathsByRootForm(result1, result2, setOf()).resultMap
         val nonMatchedResults = res.nonMatchResults;
         nonMatchedResults.forEach {
             println(it.value.format(it.key))
         }
         println("hi $res")
+    }
+
+    fun test2() {
+        val res = ComparePathsByRootForm(listOf("webapps/ROOT/WEB-INF/plugins/Duplicator/agent/duplicatePlugin.zip/teamcity-plugin.xml"), listOf("webapps/ROOT/WEB-INF/plugins/Duplicator/agent/duplicatePlugin.zip/duplicatePlugin/teamcity-plugin.xml"), emptySet()).resultMap;
+        val nmr = res.nonMatchResults
+        println(nmr)
+    }
+
+    @Test
+    fun testCheckRoot() {
+        var cprf = ComparePathsByRootForm(listOf(), listOf(), setOf());
+        assertThat(cprf.findRoot("webapps/ROOT/WEB-INF/plugins/Duplicator/agent/duplicatePlugin.zip/duplicatePlugin/teamcity-plugin.xml"))
+            .isEqualTo("webapps/ROOT/WEB-INF/plugins/Duplicator/agent/duplicatePlugin/teamcity-plugin.xml");
+        assertThat(cprf.findRoot("webapps/ROOT/WEB-INF/plugins/java-dowser/agent/java-dowser.zip/java-dowser/java-dowser.jar/versionInfo/VersionInfo.java"))
+            .isEqualTo("webapps/ROOT/WEB-INF/plugins/java-dowser/agent/java-dowser/versionInfo/VersionInfo.java");
+    }
+
+    @Test
+    fun test3() {
+        val res = ComparePathsByRootForm(listOf("webapps/ROOT/WEB-INF/plugins/java-dowser/agent/java-dowser.zip/java-dowser/java-dowser.jar/versionInfo/VersionInfo.java"), listOf("webapps/ROOT/WEB-INF/plugins/Duplicator/agent/duplicatePlugin.zip/duplicatePlugin/teamcity-plugin.xml"), emptySet()).resultMap;
+        val nmr = res.nonMatchResults
+        println(nmr)
     }
 }

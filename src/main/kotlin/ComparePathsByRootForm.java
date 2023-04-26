@@ -1,19 +1,21 @@
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class ComparePathsByRootForm {
     private final ComparisonResultMap resultMap = new ComparisonResultMap();
+    private final Set<String> ignoredTokens;
 
     private List<Pair<Pattern, String>> result1ToRootForm = List.of(
             Pair.of(Pattern.compile("^(TeamCityRaw\\.zip/webapps/ROOT/WEB-INF/lib/)(([\\w\\d\\-\\.]+).jar)/(.+)$"), "$1/$4"),
 
-            Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/agent/([\\w\\-\\.\\/]+)\\.jar/(.+)$"),
-                    "webapps/ROOT/WEB-INF/plugins/$1/agent/$3"),
+//            Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/agent/([\\w\\-\\.\\/]+)\\.jar/(.+)$"),
+//                    "webapps/ROOT/WEB-INF/plugins/$1/agent/$3"),
+
+            Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/agent/([\\w\\-]+)(\\.(zip|jar))/(\\2/)?(lib/)?(([\\w\\-\\.]+)\\.jar/)?(.+)$"),
+                    "webapps/ROOT/WEB-INF/plugins/$1/agent/$2/$9"),
 
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/server/([\\w\\-\\.\\/]+)\\.jar/(.+)$"),
                             "webapps/ROOT/WEB-INF/plugins/$1/server/$3"
@@ -22,15 +24,25 @@ public class ComparePathsByRootForm {
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/lib/([\\w\\-\\.]+)\\.jar/(.+)$"),
                     "webapps/ROOT/WEB-INF/lib/$2"),
 
-            Pair.of(Pattern.compile("^webapps/ROOT/js/ring/([\\w\\-\\/]+)\\.([a-z0-9]+)(\\.js((\\.map)?))$"),
-                            "webapps/ROOT/js/ring/$1\\.$3")
+            Pair.of(Pattern.compile("^webapps/ROOT/js/ring/([\\w\\-\\/]+)(\\.[a-z0-9]{20}\\.)(.+)$"),
+                            "webapps/ROOT/js/ring/$1\\.$3"),
 
+            Pair.of(Pattern.compile("^(.*)BUILD_(\\d+)$"),
+                    "$1BUILD_")
+
+    );
+
+    private List<Pattern> ignore = List.of(
+      Pattern.compile("raw/serverVersion.properties.xml$"),
+      Pattern.compile("serverVersion.properties-dist.xml$"),
+      Pattern.compile("META-INF/MANIFEST.MF$"),
+      Pattern.compile("META-INF/maven/(.+)$")
     );
 
 
 
-
-    public ComparePathsByRootForm(final List<String> result1, List<String> result2) {
+    public ComparePathsByRootForm(final List<String> result1, List<String> result2, Set<String> ignoredTokens) {
+        this.ignoredTokens = ignoredTokens;
         Thread t1 = new Thread(() -> {
             preprocessResult1(result1);
         });
@@ -55,18 +67,29 @@ public class ComparePathsByRootForm {
     public void preprocessResult1(List<String> result1) {
         for(String r1 : result1) {
             String root = findRoot(r1);
-            resultMap.addResult1(root, r1);
+            if (root != null)
+                resultMap.addResult1(root, r1);
         }
     }
 
     public void preprocessResult2(List<String> result2) {
         for(String r1 : result2) {
             String root = findRoot(r1);
-            resultMap.addResult2(root, r1);
+            if (root != null)
+                resultMap.addResult2(root, r1);
         }
     }
 
-    private String findRoot(String r1) {
+    public String findRoot(String r1) {
+        for (Pattern p: ignore) {
+            Matcher matcher = p.matcher(r1);
+            if (matcher.find())
+                return null;
+        }
+        for (String token: ignoredTokens) {
+            r1 = r1.replace(token, "XXXXXXX");
+        }
+
         for (Pair<Pattern, String> pair: result1ToRootForm) {
             Matcher matcher = pair.getKey().matcher(r1);
             if (matcher.find()) {

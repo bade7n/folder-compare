@@ -44,4 +44,8 @@ public class RootStringExtraInfo {
     public int getOccurence() {
         return occurences.get();
     }
+
+    public String toString() {
+        return "#" + occurences;
+    }
 }

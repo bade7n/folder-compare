@@ -1,3 +1,5 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -7,14 +9,15 @@ import java.util.stream.Stream;
 
 public class ComparisonResultMap {
     private final ConcurrentHashMap<String, RootStringExtraInfo> resultSet = new ConcurrentHashMap<>();
+    private final Comparator<Map.Entry<String, RootStringExtraInfo>> comp = Comparator.comparing(Map.Entry<String, RootStringExtraInfo>::getKey, String::compareTo);
 
 
     public List<Map.Entry<String, RootStringExtraInfo>> findMissingInResult2() {
-        return resultSet.entrySet().stream().filter(it -> it.getValue().getOccurence() < 0).collect(Collectors.toList());
+        return resultSet.entrySet().stream().filter(it -> it.getValue().getOccurence() < 0).sorted(comp).collect(Collectors.toList());
     }
 
     public List<Map.Entry<String, RootStringExtraInfo>> findMissingInResult1() {
-        return resultSet.entrySet().stream().filter(it -> it.getValue().getOccurence() > 0).collect(Collectors.toList());
+        return resultSet.entrySet().stream().filter(it -> it.getValue().getOccurence() > 0).sorted(comp).collect(Collectors.toList());
     }
 
     public void addResult2(String root, String r1) {
@@ -30,7 +33,16 @@ public class ComparisonResultMap {
     }
 
     public List<Map.Entry<String, RootStringExtraInfo>> getNonMatchResults() {
-        Comparator<Map.Entry<String, RootStringExtraInfo>> comp = Comparator.comparing(Map.Entry<String, RootStringExtraInfo>::getKey, String::compareTo);
         return resultSet.entrySet().stream().filter(it -> it.getValue().getOccurence() != 0).sorted(comp).collect(Collectors.toList());
+    }
+
+    @NotNull
+    public List<Map.Entry<String, RootStringExtraInfo>> findByPrefix(@NotNull String prefix) {
+        return resultSet.entrySet().stream().filter(it -> it.getKey().startsWith(prefix) && it.getValue().getOccurence() != 0).sorted(comp).collect(Collectors.toList());
+    }
+
+    @NotNull
+    public List<Map.Entry<String, RootStringExtraInfo>> findAllByPrefix(@NotNull String prefix) {
+        return resultSet.entrySet().stream().filter(it -> it.getKey().startsWith(prefix)).sorted(comp).collect(Collectors.toList());
     }
 }
