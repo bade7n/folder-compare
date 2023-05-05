@@ -7,10 +7,10 @@ import kotlin.io.path.name
 
 
 fun main(args: Array<String>) {
-//    val path1 = "Dist_Parts_BuildDist_Core_128770_artifacts"
-//    val path2 = "Dist_Parts_BuildDist_Core_128764_artifacts"
-    val path1 = "TeamCity-128760-elastic"
-    val path2 = "TeamCity-128634-master"
+    val path1 = "Dist_Parts_BuildDist_Core_128945_elastic"
+    val path2 = "Dist_Parts_BuildDist_Core_128938_master"
+//    val path1 = "TeamCity-128944-elastic"
+//    val path2 = "TeamCity-128862-master"
     val sw = Stopwatch.createStarted()
     var result1 = listOf<String>();
     var elastic = ""
@@ -78,6 +78,7 @@ fun saveInto(result: MutableList<String>, s: String) {
 
 fun saveInto(result: ComparisonResultMap, s: String) {
     File(s).writer().use { osw ->
+        osw.appendLine("+ file added in the new version, - file removed in the new version")
         result.nonMatchResults.forEach({
             osw.appendLine(it.key + '#' + it.value.occurence)
             it.value.origins1.forEach {
