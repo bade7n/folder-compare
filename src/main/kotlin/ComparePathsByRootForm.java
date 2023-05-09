@@ -11,9 +11,6 @@ public class ComparePathsByRootForm {
     private List<Pair<Pattern, String>> result1ToRootForm = List.of(
             Pair.of(Pattern.compile("^(TeamCityRaw\\.zip/webapps/ROOT/WEB-INF/lib/)(([\\w\\d\\-\\.]+).jar)/(.+)$"), "$1/$4"),
 
-//            Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/agent/([\\w\\-\\.\\/]+)\\.jar/(.+)$"),
-//                    "webapps/ROOT/WEB-INF/plugins/$1/agent/$3"),
-
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/agent/([\\w\\-]+)(\\.(zip|jar))/(\\2/)?(lib/)?(([\\w\\-\\.]+)\\.jar/)?(.+)$"),
                     "webapps/ROOT/WEB-INF/plugins/$1/agent/$2/$9"),
 
@@ -28,12 +25,26 @@ public class ComparePathsByRootForm {
             Pair.of(Pattern.compile("^TeamCity.zip/webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/server/([\\w\\-\\.\\/]+)\\.jar/(.+)$"),
                     "webapps/ROOT/WEB-INF/plugins/$1/server/$3"
             ),
-
             Pair.of(Pattern.compile("^TeamCity.zip/webapps/ROOT/WEB-INF/lib/([\\w\\-\\.]+)\\.jar/(.+)$"),
                     "webapps/ROOT/WEB-INF/lib/$2"),
 
             Pair.of(Pattern.compile("^TeamCity.zip/webapps/ROOT/js/ring/([\\w\\-\\/]+)((\\.[a-z0-9]{6})?\\.[a-z0-9]{20}\\.)(.+)$"),
                     "webapps/ROOT/js/ring/$1.$3"),
+
+
+            // web_deployment_debug
+            Pair.of(Pattern.compile("^WEB-INF/plugins/([\\w\\-\\.]+)/agent/([\\w\\-]+)(\\.(zip|jar))/(\\2/)?(lib/)?(([\\w\\-\\.]+)\\.jar/)?(.+)$"),
+                    "WEB-INF/plugins/$1/agent/$2/$9"),
+
+            Pair.of(Pattern.compile("^WEB-INF/plugins/([\\w\\-\\.]+)/server/([\\w\\-\\.\\/]+)\\.jar/(.+)$"),
+                    "WEB-INF/plugins/$1/server/$3"
+            ),
+            Pair.of(Pattern.compile("^WEB-INF/lib/([\\w\\-\\.]+)\\.jar/(.+)$"),
+                    "WEB-INF/lib/$2"),
+
+            Pair.of(Pattern.compile("^js/ring/([\\w\\-\\/]+)((\\.[a-z0-9]{6})?\\.[a-z0-9]{20}\\.)(.+)$"),
+                    "js/ring/$1.$3"),
+
 
 
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/lib/([\\w\\-\\.]+)\\.jar/(.+)$"),
@@ -51,6 +62,7 @@ public class ComparePathsByRootForm {
       Pattern.compile("raw/serverVersion.properties.xml$"),
       Pattern.compile("serverVersion.properties-dist.xml$"),
       Pattern.compile("META-INF/MANIFEST.MF$"),
+      Pattern.compile("WEB-INF/plugins/([\\w\\.\\-\\_]+)/\\.teamcity_shadow/(.+)$"),
       Pattern.compile("META-INF/maven/(.+)$")
     );
 

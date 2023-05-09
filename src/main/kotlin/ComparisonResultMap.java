@@ -20,14 +20,14 @@ public class ComparisonResultMap {
     }
 
     public List<Map.Entry<String, RootStringExtraInfo>> findMissingInResult2() {
-        return getInternalStream().filter(it -> it.getValue().getOccurence() < 0).sorted(comp).collect(Collectors.toList());
+        return getInternalStream().filter(it -> it.getValue().getOccurence() < 0 && it.getValue().getOrigins1().size() == 0).sorted(comp).collect(Collectors.toList());
     }
 
     Pattern agentDescriptor = Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/agent/([\\w\\-\\.]+)/teamcity-plugin.xml$");
     Pattern serverKotlinDsl = Pattern.compile("^webapps/ROOT/WEB-INF/plugins/([\\w\\-\\.]+)/server/kotlin-dsl/(.+)\\.xml$");
 
     public List<Map.Entry<String, RootStringExtraInfo>> findMissingInResult1() {
-        return getInternalStream().filter(it -> it.getValue().getOccurence() > 0)
+        return getInternalStream().filter(it -> it.getValue().getOccurence() > 0 && it.getValue().getOrigins2().size() == 0)
                 .filter(it -> !it.getKey().contains("/server/kotlin-dsl"))
                 .filter(it -> !agentDescriptor.matcher(it.getKey()).find())
                 .filter(it -> !serverKotlinDsl.matcher(it.getKey()).find())
@@ -58,5 +58,10 @@ public class ComparisonResultMap {
     @NotNull
     public List<Map.Entry<String, RootStringExtraInfo>> findAllByPrefix(@NotNull String prefix) {
         return getInternalStream().filter(it -> it.getKey().startsWith(prefix)).sorted(comp).collect(Collectors.toList());
+    }
+
+    @NotNull
+    public List<Map.Entry<String, RootStringExtraInfo>> findAllByMatch(@NotNull String prefix) {
+        return getInternalStream().filter(it -> it.getKey().contains(prefix)).sorted(comp).collect(Collectors.toList());
     }
 }

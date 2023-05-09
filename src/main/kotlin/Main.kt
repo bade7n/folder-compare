@@ -7,29 +7,31 @@ import kotlin.io.path.name
 
 
 fun main(args: Array<String>) {
-    val path1 = "Dist_Parts_BuildDist_Core_128945_elastic"
-    val path2 = "Dist_Parts_BuildDist_Core_128938_master"
+//    val path1 = "Dist_Parts_BuildDist_Core_128945_elastic"
+//    val path2 = "Dist_Parts_BuildDist_Core_128938_master"
+    val path1 = "/Volumes/app/work/jb/TeamCity/.idea_artifacts/web_deployment_no_plugins_m2"
+    val path2 = "/Volumes/app/work/jb/TeamCity/.idea_artifacts/web_deployment_no_plugins"
 //    val path1 = "TeamCity-128944-elastic"
 //    val path2 = "TeamCity-128862-master"
     val sw = Stopwatch.createStarted()
     var result1 = listOf<String>();
-    var elastic = ""
-    var master = ""
+    var elastic = "SNAPSHOT"
+    var master = "SNAPSHOT"
     val t1 = Thread {
-        val p = fetchResults(Path.of(path1))
+        val p = fetchResults(Path.of(path1), false, "elastic")
         result1 = p.first
         elastic = p.second
     }.also { it.start() }
     var result2 = listOf<String>();
     val t2 = Thread {
-        val p = fetchResults(Path.of(path2))
+        val p = fetchResults(Path.of(path2), false, "master")
         result2 = p.first
         master = p.second
     }.also { it.start() }
     t2.join();
     t1.join()
     println("Takes ${sw.elapsed()}");
-    val comparisonResult = compareResultsByRoot(result1, result2, setOf(elastic, master))
+    val comparisonResult = compareResultsByRoot(result1, result2, setOf(elastic, master).filter { !it.equals("") }.toSet())
     println("Takes ${sw.elapsed()}");
     saveInto(comparisonResult, "result_comparison.txt")
     val res2Missing = comparisonResult.findMissingInResult2();
@@ -46,14 +48,14 @@ fun RootStringExtraInfo.format(root: String) =
         
     """.trimIndent()
 
-private fun fetchResults(path: Path): Pair<List<String>, String> {
-    val cacheName = path.name + ".cache"
+private fun fetchResults(path: Path, useCache: Boolean, prefix: String): Pair<List<String>, String> {
+    val cacheName = prefix + "_" + path.name + ".cache"
     val p = Pattern.compile("(\\d+)")
     val matcher = p.matcher(path.name);
 
     val version = if (matcher.find()) matcher.group(1) else ""
 
-    return Pair(readFile(cacheName) ?: readReal(path, cacheName), version)
+    return Pair(readFile(cacheName, useCache) ?: readReal(path, cacheName), version)
 }
 
 private fun readReal(path: Path, cacheName: String): List<String> {
@@ -91,9 +93,9 @@ fun saveInto(result: ComparisonResultMap, s: String) {
     }
 }
 
-fun readFile(file: String): List<String>? {
+fun readFile(file: String, useCache: Boolean): List<String>? {
     return File(file).let { i ->
-        if (i.exists())
+        if (i.exists() && useCache)
             i.useLines { i1 -> i1.toList()}
         else
             null
