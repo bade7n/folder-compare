@@ -9,8 +9,8 @@ import kotlin.io.path.name
 fun main(args: Array<String>) {
 //    val path1 = "Dist_Parts_BuildDist_Core_128945_elastic"
 //    val path2 = "Dist_Parts_BuildDist_Core_128938_master"
-    val path1 = "/Volumes/app/work/jb/TeamCity/.idea_artifacts/web_deployment_no_plugins_m2"
-    val path2 = "/Volumes/app/work/jb/TeamCity/.idea_artifacts/web_deployment_no_plugins"
+    val path1 = "/Volumes/app/work/jb/TeamCity/.idea_artifacts/agent_deployment_debug"
+    val path2 = "/Volumes/app/work/jb/TeamCity-master/.idea_artifacts/agent_deployment_debug"
 //    val path1 = "TeamCity-128944-elastic"
 //    val path2 = "TeamCity-128862-master"
     val sw = Stopwatch.createStarted()

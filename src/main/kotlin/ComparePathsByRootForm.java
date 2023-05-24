@@ -46,6 +46,9 @@ public class ComparePathsByRootForm {
                     "js/ring/$1.$3"),
 
 
+            // agent_deployment_debug
+            Pair.of(Pattern.compile("^plugins/([\\w\\-\\.]+)/(lib/)?(([\\w\\-\\.]+)\\.jar/)?(.+)$"),
+                    "plugins/$1/$5"),
 
             Pair.of(Pattern.compile("^webapps/ROOT/WEB-INF/lib/([\\w\\-\\.]+)\\.jar/(.+)$"),
                     "webapps/ROOT/WEB-INF/lib/$2"),
